@@ -99,7 +99,7 @@ public class UserService implements IUserService {
         } catch (InvalidInputException e) {
             throw e;
         } catch (AuthenticationException e) {
-            throw new MyAuthenticationException("Error: Las credenciales ingresadas son incorrectas.");
+            throw new MyAuthenticationException("Error: Las credenciales ingresadas son incorrectas. Por favor verifique su email o contraseña.");
         } catch (Exception e) {
             throw new CustomException("Error inesperado durante el inicio de sesión: ");
         }
