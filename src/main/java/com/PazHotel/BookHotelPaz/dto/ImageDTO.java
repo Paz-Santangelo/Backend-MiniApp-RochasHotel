@@ -10,5 +10,6 @@ public class ImageDTO {
 
     private Long id;
     private String urlImage;
+    private String name;
 
 }

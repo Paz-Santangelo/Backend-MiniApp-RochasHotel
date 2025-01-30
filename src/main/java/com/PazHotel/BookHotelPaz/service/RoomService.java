@@ -1,6 +1,7 @@
 package com.PazHotel.BookHotelPaz.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +15,20 @@ import com.PazHotel.BookHotelPaz.Exception.NotFoundException;
 import com.PazHotel.BookHotelPaz.dto.RoomDTO;
 import com.PazHotel.BookHotelPaz.model.ImageRoom;
 import com.PazHotel.BookHotelPaz.model.Room;
+import com.PazHotel.BookHotelPaz.repository.IImageRoomRepository;
 import com.PazHotel.BookHotelPaz.repository.IRoomRepository;
 import com.PazHotel.BookHotelPaz.utils.Utils;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class RoomService implements IRoomService {
 
     @Autowired
     private IRoomRepository roomRepository;
+
+    @Autowired
+    private IImageRoomRepository imageRoomRepository;
 
     @Autowired
     private IImageService imageService;
@@ -84,6 +91,7 @@ public class RoomService implements IRoomService {
     }
 
     @Override
+    @Transactional
     public RoomDTO updateRoom(Long idRoom, List<MultipartFile> files, String roomType, Double roomPrice,
             String roomDescription) {
         try {
@@ -104,9 +112,18 @@ public class RoomService implements IRoomService {
                     .orElseThrow(() -> new NotFoundException("Habitación no encontrada"));
 
             if (files != null && !files.isEmpty()) {
-                imageService.deleteImagesRooms(idRoom); // Borra las imágenes existentes
-                List<ImageRoom> imagesRooms = imageService.uploadImagesRooms(files, room); // Sube nuevas imágenes
-                room.setImagesRooms(imagesRooms);
+                // Eliminar las imágenes existentes
+                List<ImageRoom> existingImages = new ArrayList<>(room.getImagesRooms()); // Copia de la lista
+                for (ImageRoom image : existingImages) {
+                    room.removeImageRoom(image); // Eliminar la imagen de la habitación
+                    imageService.deleteImageCloudinaryAndRepository(image, imageRoomRepository); 
+                }
+
+                // Subir nuevas imágenes
+                List<ImageRoom> newImages = imageService.uploadImagesRooms(files, room);
+                for (ImageRoom image : newImages) {
+                    room.addImageRoom(image); // Agregar la nueva imagen a la habitación
+                }
             }
 
             room.setRoomType(roomType);
@@ -120,7 +137,7 @@ public class RoomService implements IRoomService {
         } catch (NotFoundException | InvalidInputException | ImageUploadException e) {
             throw e;
         } catch (Exception e) {
-            throw new CustomException("Error inesperado al modificar la habitación: ");
+            throw new CustomException("Error inesperado al modificar la habitación: " + e.getMessage());
         }
     }
 
@@ -139,7 +156,7 @@ public class RoomService implements IRoomService {
             imageService.deleteImagesRooms(roomFound.getId());
             roomRepository.deleteById(roomFound.getId());
         } catch (NotFoundException e) {
-           throw e;
+            throw e;
         } catch (Exception e) {
             throw new CustomException("Error inesperado al eliminar la habitación: ");
         }
@@ -162,9 +179,10 @@ public class RoomService implements IRoomService {
             String roomType) {
         try {
             if (checkInDate == null || checkOutDate == null || roomType == null || roomType.isBlank()) {
-                throw new InvalidInputException("Se requieren todos los datos: fecha de entrada, fecha de salida y tipo de habitación");
+                throw new InvalidInputException(
+                        "Se requieren todos los datos: fecha de entrada, fecha de salida y tipo de habitación");
             }
-            
+
             List<Room> rooms = roomRepository.findAvailableRoomsByDateAndTypes(checkInDate, checkOutDate, roomType);
 
             if (rooms.isEmpty()) {
@@ -175,7 +193,7 @@ public class RoomService implements IRoomService {
             List<RoomDTO> roomsDTO = Utils.convertRoomListToRoomDTOList(rooms);
 
             return roomsDTO;
-        } catch (InvalidInputException |NotFoundException e) {
+        } catch (InvalidInputException | NotFoundException e) {
             throw e;
         } catch (Exception e) {
             throw new CustomException("Error al obtener las habitaciones disponibles: ");

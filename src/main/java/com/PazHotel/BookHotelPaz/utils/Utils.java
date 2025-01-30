@@ -32,6 +32,7 @@ public class Utils {
             T classDto = clazz.getDeclaredConstructor().newInstance();
             classDto.setId(image.getId());
             classDto.setUrlImage(image.getImageUrl());
+            classDto.setName(image.getName());
             return classDto;
         } catch (Exception e) {
             throw new RuntimeException("Error al convertir la entidad Imagen a DTO: " + e.getMessage());

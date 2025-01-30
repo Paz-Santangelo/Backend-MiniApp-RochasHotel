@@ -72,10 +72,6 @@ public class ImageService implements IImageService {
     public void deleteImagesRooms(Long roomId) {
         List<ImageRoom> imagesRooms = this.getImagesRoomsByIdRoom(roomId);
 
-        if (imagesRooms.isEmpty()) {
-            throw new RuntimeException("No se encontraron imágenes asociadas a la habitación con ID: " + roomId);
-        }
-
         imagesRooms.forEach(image -> {
             try {
                 deleteImageCloudinaryAndRepository(image, imageRoomRepository);
@@ -88,7 +84,7 @@ public class ImageService implements IImageService {
     public <T extends Image> void deleteImageCloudinaryAndRepository(T image, JpaRepository<T, Long> repository)
             throws IOException {
         cloudinaryService.delete(image.getImageId());
-        repository.deleteById(image.getId());
+        repository.delete(image);
     }
 
     public List<ImageRoom> getImagesRoomsByIdRoom(Long roomId) {

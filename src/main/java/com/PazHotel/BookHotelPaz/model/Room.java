@@ -1,5 +1,6 @@
 package com.PazHotel.BookHotelPaz.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -25,10 +26,19 @@ public class Room {
     private Double roomPrice;
     private String roomDescription;
 
-    @OneToMany(mappedBy = "room")
-    private List<ImageRoom> imagesRooms;
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ImageRoom> imagesRooms = new ArrayList<>();
 
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Booking> bookings;
-    
+
+    public void addImageRoom(ImageRoom imageRoom) {
+        imagesRooms.add(imageRoom);
+        imageRoom.setRoom(this);
+    }
+
+    public void removeImageRoom(ImageRoom imageRoom) {
+        imagesRooms.remove(imageRoom);
+        imageRoom.setRoom(null);
+    }
 }
