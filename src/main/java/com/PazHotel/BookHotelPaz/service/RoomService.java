@@ -34,6 +34,7 @@ public class RoomService implements IRoomService {
     private IImageService imageService;
 
     @Override
+    @Transactional
     public RoomDTO createRoom(List<MultipartFile> files, String roomType, Double roomPrice, String roomDescription) {
 
         try {
@@ -56,8 +57,7 @@ public class RoomService implements IRoomService {
             room.setRoomDescription(roomDescription);
             Room roomSaved = roomRepository.save(room);
 
-            List<ImageRoom> imagesRooms;
-            imagesRooms = imageService.uploadImagesRooms(files, roomSaved);
+            List<ImageRoom> imagesRooms =imageService.uploadImagesRooms(files, roomSaved);
 
             roomSaved.setImagesRooms(imagesRooms);
             Room roomFinal = roomRepository.save(roomSaved);
@@ -69,6 +69,7 @@ public class RoomService implements IRoomService {
         } catch (InvalidInputException | ImageUploadException e) {
             throw e;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new CustomException("Error inesperado al crear la habitación: ");
         }
     }
