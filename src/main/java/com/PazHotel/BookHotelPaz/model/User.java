@@ -43,7 +43,7 @@ public class User implements UserDetails {
 
     private String role;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Booking> bookings;
 
     @Override

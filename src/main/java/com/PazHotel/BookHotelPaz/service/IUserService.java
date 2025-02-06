@@ -16,7 +16,7 @@ public interface IUserService {
 
     public List<UserDTO> getAllUsers();
 
-    public UserDTO getUserWithBookingsHistory(Long userId);
+    public UserDTO getUserWithBookingsHistory(String userId);
 
     public UserDTO getUserById(Long id);
 

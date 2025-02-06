@@ -39,7 +39,7 @@ public class UserController {
     }
 
     @GetMapping("/bookings/{userId}")
-    public ResponseEntity<?> getUserBookingsHistory(@PathVariable Long userId) {
+    public ResponseEntity<?> getUserBookingsHistory(@PathVariable String userId) {
         try {
             UserDTO userDto = userService.getUserWithBookingsHistory(userId);
             return ResponseEntity.ok().body(userDto);
@@ -77,7 +77,7 @@ public class UserController {
     public ResponseEntity<?> deleteUserById(@PathVariable Long id) {
         try {
             userService.deleteUserById(id);
-            return ResponseEntity.ok("Usuario eliminado con éxito");
+            return ResponseEntity.ok("Usuario eliminado con éxito.");
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body("Error inesperado al intentar eliminar el usuario: " + e.getMessage());
@@ -94,8 +94,8 @@ public class UserController {
             @RequestParam(value = "password", required = true) String password) {
 
         try {
-            UserDTO userDto = userService.updateUser(idUser, imageUser, name, phoneNumber, email, password);
-            return ResponseEntity.ok().body(userDto);
+            userService.updateUser(idUser, imageUser, name, phoneNumber, email, password);
+            return ResponseEntity.ok().body("Usuario modificado con éxito. Deberá volver a iniciar sesión para poder continuar usando el sistema.");
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
                     .body("Error inesperado al actualizar el usuario: " + e.getMessage());

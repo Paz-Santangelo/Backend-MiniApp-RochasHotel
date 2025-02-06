@@ -118,8 +118,9 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public UserDTO getUserWithBookingsHistory(Long userId) {
+    public UserDTO getUserWithBookingsHistory(String idUser) {
         try {
+            Long userId = Long.parseLong(idUser);
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new Exception("Usuario no encontrado."));
             UserDTO userDto = Utils.convertUserEntityToUserDTOWithBookingsAndRoom(user);

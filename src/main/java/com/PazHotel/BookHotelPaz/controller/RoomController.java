@@ -36,8 +36,8 @@ public class RoomController {
             @RequestParam(value = "roomPrice", required = false) Double roomPrice,
             @RequestParam(value = "roomDescription", required = false) String roomDescription) {
 
-        RoomDTO roomDTO = roomService.createRoom(files, roomType, roomPrice, roomDescription);
-        return ResponseEntity.ok(roomDTO);
+        roomService.createRoom(files, roomType, roomPrice, roomDescription);
+        return ResponseEntity.ok().body("Habitación creada con éxito");
     }
 
     @GetMapping("/all")
@@ -74,7 +74,7 @@ public class RoomController {
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> deleteRoom(@PathVariable Long roomId) {
         roomService.deleteRoomById(roomId);
-        return ResponseEntity.status(HttpStatus.OK).body("Habitación eliminada con éxito");
+        return ResponseEntity.status(HttpStatus.OK).body("Habitación eliminada con éxito.");
     }
 
     @GetMapping("/all/availables")
