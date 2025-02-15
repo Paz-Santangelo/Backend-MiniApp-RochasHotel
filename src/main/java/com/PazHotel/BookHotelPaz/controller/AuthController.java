@@ -23,7 +23,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
         userService.register(user);
-        return ResponseEntity.ok("Usuario registrado con éxito");
+        return ResponseEntity.ok("Usuario registrado con éxito.");
     }
 
     @PostMapping("/login")

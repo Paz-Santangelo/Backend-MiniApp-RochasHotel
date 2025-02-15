@@ -21,6 +21,7 @@ import com.PazHotel.BookHotelPaz.model.User;
 import com.PazHotel.BookHotelPaz.repository.IUserRepository;
 import com.PazHotel.BookHotelPaz.utils.JWTUtils;
 import com.PazHotel.BookHotelPaz.utils.Utils;
+import com.cloudinary.api.exceptions.NotFound;
 
 @Service
 public class UserService implements IUserService {
@@ -99,9 +100,10 @@ public class UserService implements IUserService {
         } catch (InvalidInputException e) {
             throw e;
         } catch (AuthenticationException e) {
-            throw new MyAuthenticationException("Error: Las credenciales ingresadas son incorrectas. Por favor verifique su email o contraseña.");
+            throw new MyAuthenticationException(
+                    "Error: Las credenciales ingresadas son incorrectas. Por favor verifique su email o contraseña.");
         } catch (Exception e) {
-            throw new CustomException("Error inesperado durante el inicio de sesión: ");
+            throw new CustomException("Error inesperado durante el inicio de sesión." + e.getMessage());
         }
     }
 
@@ -113,7 +115,7 @@ public class UserService implements IUserService {
 
             return usersDTO;
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new CustomException("Error al obtener los usuarios: " + e.getMessage());
         }
     }
 
@@ -126,7 +128,8 @@ public class UserService implements IUserService {
             UserDTO userDto = Utils.convertUserEntityToUserDTOWithBookingsAndRoom(user);
             return userDto;
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new CustomException(
+                    "Error inesperado al obtener el historial de reservas del usuario: " + e.getMessage());
         }
     }
 
@@ -134,11 +137,11 @@ public class UserService implements IUserService {
     public UserDTO getUserById(Long id) {
         try {
             User user = userRepository.findById(id)
-                    .orElseThrow(() -> new Exception("Usuario no encontrado."));
+                    .orElseThrow(() -> new NotFoundException("Usuario no encontrado."));
             UserDTO userDto = Utils.convertUserEntityToUserDTO(user);
             return userDto;
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new CustomException("Error inesperado al obtener el usuario: " + e.getMessage());
         }
     }
 
@@ -146,22 +149,23 @@ public class UserService implements IUserService {
     public UserDTO getUserByEmail(String email) {
         try {
             User user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new Exception("Usuario no encontrado con el email: " + email));
+                    .orElseThrow(() -> new NotFoundException("Usuario no encontrado con el email: " + email));
             UserDTO userDto = Utils.convertUserEntityToUserDTO(user);
             return userDto;
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new CustomException("Error inesperado al obtener el usuario: " + e.getMessage());
         }
     }
 
     @Override
     public void deleteUserById(Long id) {
         try {
-            User userFound = userRepository.findById(id).orElseThrow(() -> new Exception("Usuario no encontrado."));
+            User userFound = userRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Usuario no encontrado."));
             userRepository.deleteById(userFound.getId());
             imageService.deleteImageUser(userFound.getImageUser());
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new CustomException("Error inesperado al eliminar el usuario: " + e.getMessage());
         }
     }
 
@@ -170,7 +174,7 @@ public class UserService implements IUserService {
             String password) {
 
         try {
-            User userFound = userRepository.findById(idUser).orElseThrow(() -> new Exception("Usuario no encontrado."));
+            User userFound = userRepository.findById(idUser).orElseThrow(() -> new NotFoundException("Usuario no encontrado."));
 
             if (image != null) {
                 ImageUser imageFound = userFound.getImageUser();
@@ -194,7 +198,7 @@ public class UserService implements IUserService {
             return userDTO;
 
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new CustomException("Error inesperado al actualizar el usuario: " + e.getMessage());
         }
 
     }

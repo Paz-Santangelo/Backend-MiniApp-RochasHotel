@@ -29,59 +29,34 @@ public class UserController {
     @GetMapping("/all")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> getAllUsers() {
-        try {
-            List<UserDTO> users = userService.getAllUsers();
-            return ResponseEntity.ok().body(users);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body("Error inesperado al obtener los usuarios: " + e.getMessage());
-        }
+        List<UserDTO> users = userService.getAllUsers();
+        return ResponseEntity.ok().body(users);
     }
 
     @GetMapping("/bookings/{userId}")
     public ResponseEntity<?> getUserBookingsHistory(@PathVariable String userId) {
-        try {
-            UserDTO userDto = userService.getUserWithBookingsHistory(userId);
-            return ResponseEntity.ok().body(userDto);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body("Error inesperado al obtener el historial de reservas del usuario: " + e.getMessage());
-        }
+        UserDTO userDto = userService.getUserWithBookingsHistory(userId);
+        return ResponseEntity.ok().body(userDto);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
-        try {
-            UserDTO userDto = userService.getUserById(id);
-            return ResponseEntity.ok().body(userDto);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body("Error inesperado al obtener el usuario: " + e.getMessage());
-        }
+        UserDTO userDto = userService.getUserById(id);
+        return ResponseEntity.ok().body(userDto);
     }
 
     @GetMapping("/logged")
     public ResponseEntity<?> getUserByEmail() {
-        try {
-            Authentication authenticaiton = SecurityContextHolder.getContext().getAuthentication();
-            String email = authenticaiton.getName();
-            UserDTO userDto = userService.getUserByEmail(email);
-            return ResponseEntity.ok().body(userDto);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body("Error inesperado al obtener el usuario: " + e.getMessage());
-        }
+        Authentication authenticaiton = SecurityContextHolder.getContext().getAuthentication();
+        String email = authenticaiton.getName();
+        UserDTO userDto = userService.getUserByEmail(email);
+        return ResponseEntity.ok().body(userDto);
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteUserById(@PathVariable Long id) {
-        try {
-            userService.deleteUserById(id);
-            return ResponseEntity.ok("Usuario eliminado con éxito.");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body("Error inesperado al intentar eliminar el usuario: " + e.getMessage());
-        }
+        userService.deleteUserById(id);
+        return ResponseEntity.ok("El perfil fue eliminado con éxito.");
     }
 
     @PutMapping("/update/{idUser}")
@@ -92,14 +67,8 @@ public class UserController {
             @RequestParam(value = "phoneNumber", required = false) String phoneNumber,
             @RequestParam(value = "email", required = true) String email,
             @RequestParam(value = "password", required = true) String password) {
-
-        try {
-            userService.updateUser(idUser, imageUser, name, phoneNumber, email, password);
-            return ResponseEntity.ok().body("Usuario modificado con éxito. Deberá volver a iniciar sesión para poder continuar usando el sistema.");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                    .body("Error inesperado al actualizar el usuario: " + e.getMessage());
-        }
-
+        userService.updateUser(idUser, imageUser, name, phoneNumber, email, password);
+        return ResponseEntity.ok().body(
+                "Usuario modificado con éxito. Deberá volver a iniciar sesión para poder continuar usando el sistema.");
     }
 }
